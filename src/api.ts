@@ -3,6 +3,7 @@ import {
   MastodonStatus,
   MastodonError,
   MastodonMediaAttachment,
+  StatusOrScheduledStatus,
 } from "./mastodon_types.js";
 import { Readable } from "stream";
 
@@ -92,8 +93,8 @@ export class MastodonClient {
     }
   }
 
-  async createStatus(params: CreateStatusParams): Promise<MastodonStatus> {
-    return this.request<MastodonStatus>("/api/v1/statuses", "POST", {
+  async createStatus(params: CreateStatusParams): Promise<StatusOrScheduledStatus> {
+    const payload: CreateStatusParams = {
       status: params.status,
       visibility: params.visibility,
       sensitive: params.sensitive,
@@ -102,6 +103,10 @@ export class MastodonClient {
       media_ids: params.media_ids,
       poll: params.poll,
       in_reply_to_id: params.in_reply_to_id,
-    });
+    };
+    if (params.scheduled_at) {
+      payload.scheduled_at = params.scheduled_at;
+    }
+    return this.request<StatusOrScheduledStatus>("/api/v1/statuses", "POST", payload);
   }
 }

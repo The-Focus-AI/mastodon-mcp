@@ -113,8 +113,36 @@ export interface CreateStatusParams {
     hide_totals?: boolean;
   };
   in_reply_to_id?: string;
+  scheduled_at?: string; // ISO 8601 datetime string
 }
 
 export interface MastodonError {
   error: string;
 }
+
+// Represents the parameters of a scheduled status, as returned by the API
+export interface ScheduledMastodonStatusParams {
+  text: string;
+  poll?: {
+    options: string[];
+    expires_in: number; // Duration in seconds
+    multiple?: boolean;
+    hide_totals?: boolean;
+  };
+  media_ids?: string[];
+  sensitive?: boolean;
+  spoiler_text?: string;
+  visibility?: "public" | "unlisted" | "private" | "direct";
+  in_reply_to_id?: string | null;
+  language?: string;
+  scheduled_at?: string | null; // This is the 'params.scheduled_at' from OpenAPI, likely null if top-level scheduled_at is used
+}
+
+export interface ScheduledMastodonStatus {
+  id: string;
+  scheduled_at: string; // ISO 8601 datetime string for when it will be posted
+  params: ScheduledMastodonStatusParams;
+  media_attachments: MastodonMediaAttachment[];
+}
+
+export type StatusOrScheduledStatus = MastodonStatus | ScheduledMastodonStatus;

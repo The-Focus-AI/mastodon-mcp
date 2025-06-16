@@ -28,8 +28,8 @@ const TootSchema = z.object({
     .optional(),
   scheduled_at: z
     .string()
-    .datetime({ message: "Invalid datetime string, expected ISO 8601 format (e.g., YYYY-MM-DDTHH:mm:ss.sssZ)" })
-    .describe("Optional ISO 8601 datetime string to schedule the toot for a future time. Example: 2024-01-01T10:00:00Z")
+    .datetime({ offset: true, message: "Invalid datetime string, expected ISO 8601 format (e.g., YYYY-MM-DDTHH:mm:ss.sssZ, YYYY-MM-DDTHH:mm:ss.sss+HH:MM)" })
+    .describe("Optional ISO 8601 datetime string to schedule the toot for a future time. Examples: 2024-01-01T10:00:00Z, 2024-01-01T10:00:00+01:00")
     .optional(),
 });
 

@@ -135,7 +135,7 @@ export interface ScheduledMastodonStatusParams {
   visibility?: "public" | "unlisted" | "private" | "direct";
   in_reply_to_id?: string | null;
   language?: string;
-  scheduled_at?: string | null; // This is the 'params.scheduled_at' from OpenAPI, likely null if top-level scheduled_at is used
+  scheduled_at?: string | null;
 }
 
 export interface ScheduledMastodonStatus {

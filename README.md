@@ -7,14 +7,14 @@ A [Model Context Protocol](https://github.com/thefocus/modelcontextprotocol) ser
 - Create toots with customizable visibility and content warnings
 - Upload and attach media files (images, videos, audio)
 - Add alt text/descriptions to media attachments
-- Secure credential management using 1Password CLI
+- Secure credential management using environment variables or 1Password CLI
 
 ## Prerequisites
 
 - Node.js 18+
 - pnpm
-- 1Password CLI (`op`) installed and configured
 - A Mastodon account and API access token
+- Optionally, 1Password CLI (`op`) installed and configured if using 1Password for credential management.
 
 ## Installation
 
@@ -32,9 +32,15 @@ pnpm build
 
 ## Configuration
 
-The tool requires a Mastodon API token stored in 1Password. Store your token at:
+The tool requires a Mastodon API token. You can provide this token in one of the following ways:
 
-- `op://Personal/Floss.Social Key/notesPlain`
+1.  **Environment Variable (Recommended for simplicity)**:
+    Set the `MASTODON_ACCESS_TOKEN` environment variable:
+    ```bash
+    export MASTODON_ACCESS_TOKEN="your_mastodon_api_token"
+    ```
+2.  **1Password**: Store your token at:
+    - `op://Personal/Floss.Social Key/notesPlain`
 
 You can optionally set the Mastodon instance URL via environment variable:
 
@@ -98,7 +104,7 @@ pnpm start
 ## Security
 
 - No credentials are hardcoded in the codebase
-- API tokens are securely stored in and retrieved from 1Password
+- API tokens can be securely managed via environment variables or retrieved from 1Password.
 - API responses are git-ignored to prevent accidental credential leaks
 
 ## License

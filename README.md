@@ -7,6 +7,7 @@ A [Model Context Protocol](https://github.com/thefocus/modelcontextprotocol) ser
 - Create toots with customizable visibility and content warnings
 - Upload and attach media files (images, videos, audio)
 - Add alt text/descriptions to media attachments
+- Schedule toots for a future time
 - Secure credential management using environment variables or 1Password CLI
 
 ## Prerequisites
@@ -66,6 +67,7 @@ The server exposes a single tool `mastodon_create_toot` with the following param
 - `spoiler_text`: Warning text shown before the content (default: "")
 - `media_file`: Path to a media file to attach
 - `media_description`: Alt text/description for the attached media
+- `scheduled_at`: Optional ISO 8601 datetime to schedule the toot for a future time (e.g., "2024-07-04T10:00:00-07:00")
 
 ### Example Usage with MCP Inspector
 
@@ -84,7 +86,8 @@ npx @modelcontextprotocol/inspector node dist/mcp-server.js
   "content": "Hello from MCP!",
   "visibility": "public",
   "media_file": "/path/to/image.jpg",
-  "media_description": "A beautiful sunset"
+  "media_description": "A beautiful sunset",
+  "scheduled_at": "2025-01-01T12:00:00Z"
 }
 ```
 

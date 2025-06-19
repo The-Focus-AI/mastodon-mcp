@@ -26,6 +26,11 @@ const TootSchema = z.object({
     .string()
     .describe("Alt text / description for the attached media")
     .optional(),
+  scheduled_at: z
+    .string()
+    .datetime({ offset: true, message: "Invalid datetime string, expected ISO 8601 format (e.g., YYYY-MM-DDTHH:mm:ss.sssZ, YYYY-MM-DDTHH:mm:ss.sss+HH:MM)" })
+    .describe("Optional ISO 8601 datetime string to schedule the toot for a future time. Examples: 2024-01-01T10:00:00Z, 2024-01-01T10:00:00+01:00")
+    .optional(),
 });
 
 type TootParams = z.infer<typeof TootSchema>;
@@ -57,24 +62,38 @@ export async function addMastodonTool(server: McpServer) {
         }
       }
 
-      const status = await client.createStatus({
+      const result = await client.createStatus({
         status: params.content,
         visibility: params.visibility,
         sensitive: params.sensitive,
         spoiler_text: params.spoiler_text,
         media_ids,
+        scheduled_at: params.scheduled_at,
       });
 
-      const mediaInfo =
-        status.media_attachments.length > 0
-          ? `\nMedia: ${status.media_attachments.map((m) => m.url).join(", ")}`
-          : "";
+      let successMessage: string;
+
+      // Check if 'url' property exists to differentiate MastodonStatus from ScheduledMastodonStatus
+      if ('url' in result) { // It's a MastodonStatus (posted immediately)
+        const mediaInfo =
+          result.media_attachments.length > 0
+            ? `\nMedia: ${result.media_attachments.map((m) => m.url).join(", ")}`
+            : "";
+        successMessage = `Successfully created toot! View it at: ${result.url}${mediaInfo}`;
+      } else { // It's a ScheduledMastodonStatus
+        const scheduledTime = new Date(result.scheduled_at).toLocaleString();
+        let mediaInfo = "";
+        if (result.media_attachments && result.media_attachments.length > 0) {
+            mediaInfo = `\nMedia will be attached: ${result.media_attachments.length} item(s).`;
+        }
+        successMessage = `Successfully scheduled toot! ID: ${result.id}. It will be posted at: ${scheduledTime}.${mediaInfo}`;
+      }
 
       return {
         content: [
           {
             type: "text",
-            text: `Successfully created toot! View it at: ${status.url}${mediaInfo}`,
+            text: successMessage,
           },
         ],
       };

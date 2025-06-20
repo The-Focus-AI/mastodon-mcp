@@ -2,6 +2,10 @@
 
 A [Model Context Protocol](https://github.com/thefocus/modelcontextprotocol) server that provides tools for interacting with Mastodon. Currently supports creating toots with optional media attachments.
 
+<a href="https://glama.ai/mcp/servers/@The-Focus-AI/mastodon-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@The-Focus-AI/mastodon-mcp/badge" alt="Mastodon MCP server" />
+</a>
+
 ## Features
 
 - Create toots with customizable visibility and content warnings

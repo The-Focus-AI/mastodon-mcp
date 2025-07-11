@@ -3,6 +3,7 @@ import {
   MastodonStatus,
   MastodonError,
   MastodonMediaAttachment,
+  StatusOrScheduledStatus,
 } from "./mastodon_types.js";
 import { Readable } from "stream";
 
@@ -34,18 +35,29 @@ export class MastodonClient {
       headers,
       body: isFormData
         ? (body as FormData)
-        : body
+                : body
         ? JSON.stringify(body)
         : undefined,
     });
 
-    const data = await response.json();
+    const responseText = await response.text();
+    // This log will show the raw response from the server, helping you debug.
+    console.log(`[Mastodon API Debug] Status: ${response.status}, Body: ${responseText}`);
 
     if (!response.ok) {
-      throw new Error((data as MastodonError).error);
+        // Attempt to parse the error, but fallback to the raw text if it's not JSON.
+        let errorMessage = `Request failed with status ${response.status}`;
+        try {
+            const errorJson = JSON.parse(responseText);
+            errorMessage = (errorJson as MastodonError).error || JSON.stringify(errorJson);
+        } catch (e) {
+            errorMessage = `${errorMessage}: ${responseText}`;
+        }
+        throw new Error(errorMessage);
     }
 
-    return data as T;
+    // On success, parse the JSON. If this fails, the original error will be thrown.
+    return JSON.parse(responseText) as T;
   }
 
   async uploadMedia(
@@ -92,8 +104,8 @@ export class MastodonClient {
     }
   }
 
-  async createStatus(params: CreateStatusParams): Promise<MastodonStatus> {
-    return this.request<MastodonStatus>("/api/v1/statuses", "POST", {
+  async createStatus(params: CreateStatusParams): Promise<StatusOrScheduledStatus> {
+    const payload: CreateStatusParams = {
       status: params.status,
       visibility: params.visibility,
       sensitive: params.sensitive,
@@ -102,6 +114,10 @@ export class MastodonClient {
       media_ids: params.media_ids,
       poll: params.poll,
       in_reply_to_id: params.in_reply_to_id,
-    });
+    };
+    if (params.scheduled_at) {
+      payload.scheduled_at = params.scheduled_at;
+    }
+    return this.request<StatusOrScheduledStatus>("/api/v1/statuses", "POST", payload);
   }
 }

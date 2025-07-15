@@ -14,7 +14,7 @@
     "mastodon"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "packageManager": "pnpm@10.6.1",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",

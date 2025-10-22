@@ -4,6 +4,10 @@ import {
   MastodonError,
   MastodonMediaAttachment,
   StatusOrScheduledStatus,
+  TimelineParams,
+  MastodonTrendingTag,
+  SearchParams,
+  MastodonSearchResults,
 } from "./mastodon_types.js";
 import { Readable } from "stream";
 
@@ -42,7 +46,7 @@ export class MastodonClient {
 
     const responseText = await response.text();
     // This log will show the raw response from the server, helping you debug.
-    console.log(`[Mastodon API Debug] Status: ${response.status}, Body: ${responseText}`);
+    console.error(`[Mastodon API Debug] Status: ${response.status}, Body: ${responseText}`);
 
     if (!response.ok) {
         // Attempt to parse the error, but fallback to the raw text if it's not JSON.
@@ -119,5 +123,47 @@ export class MastodonClient {
       payload.scheduled_at = params.scheduled_at;
     }
     return this.request<StatusOrScheduledStatus>("/api/v1/statuses", "POST", payload);
+  }
+
+  // Timeline methods
+  async getHomeTimeline(params: TimelineParams = {}): Promise<MastodonStatus[]> {
+    const queryParams = this.buildQueryParams(params);
+    return this.request<MastodonStatus[]>(`/api/v1/timelines/home${queryParams}`);
+  }
+
+  async getPublicTimeline(params: TimelineParams = {}): Promise<MastodonStatus[]> {
+    const queryParams = this.buildQueryParams(params);
+    return this.request<MastodonStatus[]>(`/api/v1/timelines/public${queryParams}`);
+  }
+
+  async getLocalTimeline(params: TimelineParams = {}): Promise<MastodonStatus[]> {
+    const localParams = { ...params, local: true };
+    const queryParams = this.buildQueryParams(localParams);
+    return this.request<MastodonStatus[]>(`/api/v1/timelines/public${queryParams}`);
+  }
+
+  // Trending methods
+  async getTrendingTags(limit: number = 10): Promise<MastodonTrendingTag[]> {
+    const queryParams = limit ? `?limit=${limit}` : "";
+    return this.request<MastodonTrendingTag[]>(`/api/v1/trends/tags${queryParams}`);
+  }
+
+  // Search methods
+  async search(params: SearchParams): Promise<MastodonSearchResults> {
+    const queryParams = this.buildQueryParams(params);
+    return this.request<MastodonSearchResults>(`/api/v2/search${queryParams}`);
+  }
+
+  private buildQueryParams(params: Record<string, any>): string {
+    const filteredParams: Record<string, string> = {};
+    
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null) {
+        filteredParams[key] = String(value);
+      }
+    }
+    
+    const queryString = new URLSearchParams(filteredParams).toString();
+    return queryString ? `?${queryString}` : "";
   }
 }

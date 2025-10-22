@@ -146,3 +146,46 @@ export interface ScheduledMastodonStatus {
 }
 
 export type StatusOrScheduledStatus = MastodonStatus | ScheduledMastodonStatus;
+
+// Timeline query parameters
+export interface TimelineParams {
+  max_id?: string;
+  since_id?: string;
+  min_id?: string;
+  limit?: number; // Max 40, default 20
+  local?: boolean; // For public timeline only
+  remote?: boolean; // For public timeline only
+}
+
+// Trending hashtags
+export interface MastodonHashtagHistory {
+  day: string; // Unix timestamp as string
+  uses: string; // Number of uses as string
+  accounts: string; // Number of accounts as string
+}
+
+export interface MastodonTrendingTag {
+  name: string;
+  url: string;
+  history: MastodonHashtagHistory[];
+}
+
+// Search parameters
+export interface SearchParams {
+  q: string; // Search query
+  type?: "accounts" | "hashtags" | "statuses";
+  resolve?: boolean; // Whether to resolve non-local accounts/statuses
+  following?: boolean; // Only search accounts user is following
+  account_id?: string; // Only search statuses from this account
+  max_id?: string;
+  min_id?: string;
+  limit?: number; // Max 40, default 20
+  offset?: number; // Skip first n results
+}
+
+// Search results
+export interface MastodonSearchResults {
+  accounts: MastodonAccount[];
+  statuses: MastodonStatus[];
+  hashtags: MastodonTrendingTag[];
+}
